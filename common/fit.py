@@ -26,7 +26,7 @@ def _load_model(args, rank=0):
         return (None, None, None)
     assert args.model_prefix is not None
     model_prefix = args.model_prefix
-    if rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, rank)):
+    if rank > 0:
         model_prefix += "-%d" % (rank)
     sym, arg_params, aux_params = mx.model.load_checkpoint(
         model_prefix, args.load_epoch)
