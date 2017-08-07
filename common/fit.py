@@ -26,7 +26,7 @@ def _load_model(args, rank=0):
         return (None, None, None)
     assert args.model_prefix is not None
     model_prefix = args.model_prefix
-    if rank > 0:
+    if rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, rank)):
         model_prefix += "-%d" % (rank)
     sym, arg_params, aux_params = mx.model.load_checkpoint(
         model_prefix, args.load_epoch)
@@ -36,6 +36,9 @@ def _load_model(args, rank=0):
 def _save_model(args, rank=0):
     if args.model_prefix is None:
         return None
+    dst_dir = os.path.dirname(args.model_prefix)
+    if not os.path.isdir(dst_dir):
+        os.mkdir(dst_dir)
     return mx.callback.do_checkpoint(args.model_prefix if rank == 0 else "%s-%d" % (
         args.model_prefix, rank))
 
@@ -143,8 +146,7 @@ def fit(args, network, data_loader, **kwargs):
             'learning_rate': lr,
             'momentum' : args.mom,
             'wd' : args.wd,
-            'lr_scheduler': lr_scheduler,
-            'multi_precision': True}
+            'lr_scheduler': lr_scheduler}
 
     monitor = mx.mon.Monitor(args.monitor, pattern=".*") if args.monitor > 0 else None
 
@@ -162,7 +164,12 @@ def fit(args, network, data_loader, **kwargs):
         eval_metrics.append(mx.metric.create('top_k_accuracy', top_k=args.top_k))
 
     # callbacks that run after each batch
-    batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
+    training_log = 'logs/train'
+    evaluation_log = 'logs/evaluation'
+    #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches), mx.contrib.tensorboard.LogMetricsCallback(training_log)]
+    batch_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(training_log)]
+    #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
+    eval_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(evaluation_log)]
     if 'batch_end_callback' in kwargs:
         cbs = kwargs['batch_end_callback']
         batch_end_callbacks += cbs if isinstance(cbs, list) else [cbs]
@@ -181,5 +188,6 @@ def fit(args, network, data_loader, **kwargs):
         aux_params         = aux_params,
         batch_end_callback = batch_end_callbacks,
         epoch_end_callback = checkpoint,
+        eval_end_callback  = eval_end_callbacks,
         allow_missing      = True,
         monitor            = monitor)
