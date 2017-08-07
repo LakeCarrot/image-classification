@@ -26,7 +26,7 @@ def _load_model(args, rank=0):
         return (None, None, None)
     assert args.model_prefix is not None
     model_prefix = args.model_prefix
-    if rank > 0 and os.path.exists("%s-%d-symbol.json" % (model_prefix, rank)):
+    if rank > 0:
         model_prefix += "-%d" % (rank)
     sym, arg_params, aux_params = mx.model.load_checkpoint(
         model_prefix, args.load_epoch)
@@ -36,9 +36,6 @@ def _load_model(args, rank=0):
 def _save_model(args, rank=0):
     if args.model_prefix is None:
         return None
-    dst_dir = os.path.dirname(args.model_prefix)
-    if not os.path.isdir(dst_dir):
-        os.mkdir(dst_dir)
     return mx.callback.do_checkpoint(args.model_prefix if rank == 0 else "%s-%d" % (
         args.model_prefix, rank))
 
