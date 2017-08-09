@@ -81,6 +81,8 @@ def add_fit_args(parser):
                        help='report the top-k accuracy. 0 means no report.')
     train.add_argument('--test-io', type=int, default=0,
                        help='1 means test reading speed without training')
+    train.add_argument('--model-save', type=str,
+                       help='place to save the post-trained model')
     return train
 
 def fit(args, network, data_loader, **kwargs):
@@ -164,7 +166,8 @@ def fit(args, network, data_loader, **kwargs):
     training_log = 'logs/train'
     evaluation_log = 'logs/evaluation'
     #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches), mx.contrib.tensorboard.LogMetricsCallback(training_log)]
-    batch_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(training_log)]
+    #batch_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(training_log)]
+    batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
     #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
     eval_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(evaluation_log)]
     if 'batch_end_callback' in kwargs:
@@ -188,3 +191,8 @@ def fit(args, network, data_loader, **kwargs):
         eval_end_callback  = eval_end_callbacks,
         allow_missing      = True,
         monitor            = monitor)
+
+    # save the model 
+    if args.model_save is not None
+      model.save(args.model_save)
+
