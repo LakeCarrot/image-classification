@@ -193,6 +193,6 @@ def fit(args, network, data_loader, **kwargs):
         monitor            = monitor)
 
     # save the model 
-    if args.model_save is not None
+    if args.model_save is not None:
       model.save(args.model_save)
 
