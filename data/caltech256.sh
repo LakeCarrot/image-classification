@@ -28,16 +28,16 @@ done
 # generate lst files
 CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 MX_DIR=${CUR_DIR}/../../../
-python ${MX_DIR}/tools/im2rec.py --list True --recursive True caltech256-train ${TRAIN_DIR}/
-python ${MX_DIR}/tools/im2rec.py --list True --recursive True caltech256-val 256_ObjectCategories/
+python im2rec.py --list True --recursive True caltech256-train ${TRAIN_DIR}/
+python im2rec.py --list True --recursive True caltech256-val 256_ObjectCategories/
 mv caltech256-train_train.lst caltech256-train.lst
 rm caltech256-train_*
 mv caltech256-val_train.lst caltech256-val.lst
 rm caltech256-val_*
 
 # generate rec files
-python ${MX_DIR}/tools/im2rec.py --resize 256 --quality 95 --num-thread 16 caltech256-val 256_ObjectCategories/
-python ${MX_DIR}/tools/im2rec.py --resize 256 --quality 95 --num-thread 16 caltech256-train ${TRAIN_DIR}/
+python im2rec.py --resize 256 --quality 95 --num-thread 16 caltech256-val 256_ObjectCategories/
+python im2rec.py --resize 256 --quality 95 --num-thread 16 caltech256-train ${TRAIN_DIR}/
 
 # clean
 rm -rf ${TRAIN_DIR} 256_ObjectCategories/
