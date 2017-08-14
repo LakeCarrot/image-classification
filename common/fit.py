@@ -166,10 +166,9 @@ def fit(args, network, data_loader, **kwargs):
     training_log = 'logs/train'
     evaluation_log = 'logs/evaluation'
     #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches), mx.contrib.tensorboard.LogMetricsCallback(training_log)]
-    #batch_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(training_log)]
-    batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
+    batch_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(training_log)]
     #batch_end_callbacks = [mx.callback.Speedometer(args.batch_size, args.disp_batches)]
-    #eval_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(evaluation_log)]
+    eval_end_callbacks = [mx.contrib.tensorboard.LogMetricsCallback(evaluation_log)]
     if 'batch_end_callback' in kwargs:
         cbs = kwargs['batch_end_callback']
         batch_end_callbacks += cbs if isinstance(cbs, list) else [cbs]
@@ -187,6 +186,7 @@ def fit(args, network, data_loader, **kwargs):
         arg_params         = arg_params,
         aux_params         = aux_params,
         batch_end_callback = batch_end_callbacks,
+        eval_end_callback  = eval_end_callbacks,
         epoch_end_callback = checkpoint,
         allow_missing      = True,
         monitor            = monitor)
@@ -194,5 +194,4 @@ def fit(args, network, data_loader, **kwargs):
     # save the model 
     if args.model_save is not None:
       model.save(args.model_save)
-    #eval_end_callback  = eval_end_callbacks,
 
